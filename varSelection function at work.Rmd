@@ -1,0 +1,88 @@
+---
+title: "``varSelection`` function"
+author: "Simone Del Sarto"
+date: "21/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This function allows for the item selection based on two steps:
+
+1. preliminary selection (non model-based)
+2. IRT selection (model-based)
+
+## Preparation
+```{r }
+source("varSelection.R")
+load("dati_UNHCR.RData")
+```
+where "dati_UNHCR.RData" is an object containing the data for which the item selection has to be applied.
+
+Suppose the ``household`` object contained the dataset at issue (UNHCR Mauritania household dataset)
+
+```{r }
+nrow(household); ncol(household)
+```
+
+First, select the food sections (from 4 to 10): columns from 20 to 109
+
+```{r}
+hh <- household[, 20:109] #90 variables
+```
+
+This will be the first argument of function ``varSelection``.
+
+## Arguments
+```{r echo=FALSE}
+args(varSelection)
+```
+
+* ``data``: dataset (dichotomous variable must be 0/1 coded)
+* ``miss_thr``: threshold for missing values (default 2/3)
+* ``gamma_thr``: threshold for item discrimination (default 0.7)
+* ``beta_thr``: threshold for beta parameters (default [-3,3])
+* ``m``: max no. of categories for discrete variables, otherwise it is considered as continuous
+* ``crit_thr``: threshold for "critical items"; observed response rate concentrated in a certain category (default 0.95)
+* ``Theta_range``: latent trait range (standard normal distributed) for evaluating the item/test information (default [-15,15])
+* ``qsel``: quantile for the selection based on item information proportion on the whole test information (default 0.25 = 1st quartile)
+* ``...``: further (if needed) arguments for 'mirt' function within IRT selection
+
+```{r }
+out <- varSelection(hh, verbose=FALSE)
+```
+
+The output is a list of two objects:
+```{r }
+str(out$prel)
+```
+
+It contains the summary of all the variables in the initial dataset
+
+* ``ID``: ID of the variables
+* ``name``: name of the variables
+* ``miss_prop``: observed proportion of missing values
+* ``ncat``: number of categories (observed)
+* ``min``: (observed) minimum values
+* ``max``: (observed) maximum values
+* ``mean``: observed average values
+* ``cont``: whether the variables are considered continuous (``ncat`` $>$ ``m``), then discarded
+* ``miss``: whether the missing values are beyond the threshold (``miss_thr``), then discarded
+
+```{r }
+str(out$final)
+```
+
+It contains the summary of the variables retained after the preliminary selection. In addition to the above summary, it has further columns:
+
+* ``crit_item``: whether the items are considered as "critical" (observed response rate for a certain category $>$ ``crit_thr``)
+* ``gamma``: estimated discrimination parameters
+* ``beta1``, ``beta2``, ...: estimated difficulty (cut-off) parameters (as many as the number of response categories minus 1)
+* ``prop_info``: proportion (%) of item information over the whole test information
+* ``gamma_sel``: whether the item is kept or dropped according to the discrimination criterion ($\geq$ ``gamma_thr``)
+* ``beta_sel``: whether the item is kept or dropped according to the beta criterion (the (median) beta parameter outside interval in ``beta_thr``)
+* ``info_sel``: whether the item is kept or dropped according to the first criterion based on item information proportion ($\geq (1/J)\times 100$, where $J$ is the number of items)
+* ``info_selQ``: whether the item is kept or dropped according to the second criterion based on item information proportion (item information proportion $\geq$ ``qsel``-quantile of the information proportion distribution)
+* ``final_sel``: final selection -- whether the item is kept or dropped (at least two criteria out of four)
