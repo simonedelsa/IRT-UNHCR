@@ -103,15 +103,4 @@ varSelection <- function(data, miss_thr=2/3, gamma_thr=0.7, beta_thr=c(-3,3), m=
 
   return(list(prel=out, final=out2))
   
-  # object returned: list with two components
-  # 1. $prel --> summary of the preliminary selection with all the variables of the initial dataset
-  #   ID name miss_prop ncat min max      mean cont miss
-  # 1  1 s4q1         0    2   0   1 0.9967051    0    0
-  # 2  2 s4q2         0    2   0   1 0.1852201    0    0
-  # 3  3 s4q3         0    2   0   1 0.1518004    0    0
-  # 4  4 s4q4         0    2   0   1 0.2650035    0    0
-  # 5  5 s4q5         0    2   0   1 0.8143092    0    0
-  # 6  6 s4q6         0    2   0   1 0.9849376    0    0
-  
-  # 2. $final --> summary of the final selection with the variables retained by the preliminar selection
 }
