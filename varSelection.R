@@ -45,6 +45,7 @@ varSelection <- function(data, miss_thr=2/3, gamma_thr=0.7, beta_thr=c(-3,3), m=
   # critical items
   data_sub1 <- subset(data, select=out2$ID)
   tab <- apply(data_sub1, 2, function(x) prop.table(table(x, useNA="always")))
+  tab <- round(tab, 2)
   crit_item <- sapply(tab, function(x) 1*(max(x)>=crit_thr))
   out2 <- data.frame(out2, crit_item)
   nvar_prel <- nrow(out2)
